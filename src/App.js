@@ -6,7 +6,8 @@ class App extends Component {
     super();
     this.togglePlay = this.togglePlay.bind(this);
     this.state = {
-      video: null
+      video: null,
+      test: false,
     };
     
   }
@@ -14,6 +15,12 @@ class App extends Component {
   componentDidMount() {
     this.setState({
       video: this.refs.video
+    }, () => {
+      ['pause', 'play'].forEach(event => {
+        this.state.video.addEventListener(event, () => {
+          this.forceUpdate();
+        });
+      }); 
     });
   }
   
@@ -24,6 +31,9 @@ class App extends Component {
   }
   
   render() {
+    const { video } = this.state;
+    // console.dir(this.state.video);
+    
     return (
       
       <div className="player">
@@ -45,7 +55,8 @@ class App extends Component {
           <button 
             className="player__button toggle" 
             title="Toggle Play"
-            onClick={this.togglePlay}>►
+            onClick={this.togglePlay}>
+            { this.state.video && this.state.video.paused ? '►' : '❚ ❚' }
           </button>
           
           <input type="range" name="volume" className="player__slider" min="0" max="1" step="0.05"/>
