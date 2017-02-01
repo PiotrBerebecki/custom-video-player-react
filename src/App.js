@@ -8,11 +8,13 @@ class App extends Component {
     this.handleProgress = this.handleProgress.bind(this);
     this.handleRangeUpdate = this.handleRangeUpdate.bind(this);
     this.scrub = this.scrub.bind(this);
+    this.toggleMouseState = this.toggleMouseState.bind(this);
     this.state = {
       video: null,
       progress: '0%',
       playbackRate: 1,
       volume: 1,
+      isMouseDown: false
     };
   }
   
@@ -28,6 +30,8 @@ class App extends Component {
       
       this.state.video.addEventListener('timeupdate', this.handleProgress);
     });
+    
+    // window.addEventListener('mouseup', this.toggleMouseState);
   }
   
   togglePlay() {
@@ -56,13 +60,22 @@ class App extends Component {
   }
   
   scrub(e) {
-    const scrubTime = (e.nativeEvent.offsetX / e.target.offsetWidth) * this.state.video.duration;
-    // Todo: Check how to update state with Immutable JS
-    // instead of using refs
-    this.refs.video.currentTime = scrubTime;
+    
+    console.log('mouse move event only with mouse down');
+    // console.dir(this.state.video);
+    // const scrubTime = (e.nativeEvent.offsetX / 640) * this.state.video.duration;
+    // this.refs.video.currentTime = scrubTime;
+    // console.log('scrubTime', scrubTime);
+  }
+  
+  toggleMouseState(e) {
+    this.setState({
+      isMouseDown: e.type === 'mousedown' || e.type !== 'mouseleave'
+    });
   }
   
   render() {
+    // console.log('render', this.state.isMouseDown);
     const { video, progress, playbackRate, volume } = this.state;
     
     return (
@@ -81,7 +94,10 @@ class App extends Component {
 
           <div 
             className="progress"
-            onClick={this.scrub}
+            onMouseDown={this.toggleMouseState}
+            onMouseUp={this.toggleMouseState}
+            onMouseLeave={this.toggleMouseState}
+            onMouseMove={(e) => this.state.isMouseDown && this.scrub(e)}
           >
            <div
              className="progress__filled"
