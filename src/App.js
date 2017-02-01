@@ -5,11 +5,11 @@ class App extends Component {
   constructor() {
     super();
     this.togglePlay = this.togglePlay.bind(this);
+    this.handleProgress = this.handleProgress.bind(this);
     this.state = {
       video: null,
-      test: false,
+      progress: '0%'
     };
-    
   }
   
   componentDidMount() {
@@ -20,7 +20,9 @@ class App extends Component {
         this.state.video.addEventListener(event, () => {
           this.forceUpdate();
         });
-      }); 
+      });
+      
+      this.state.video.addEventListener('timeupdate', this.handleProgress);
     });
   }
   
@@ -28,6 +30,14 @@ class App extends Component {
     const { video } = this.state;
     const method = video.paused ? 'play' : 'pause';
     video[method]();
+  }
+  
+  handleProgress() {
+    const { video } = this.state;
+    const percent = (video.currentTime / video.duration) * 100;
+    this.setState({
+      progress: percent
+    });
   }
   
   render() {
@@ -41,7 +51,7 @@ class App extends Component {
         <video
           className="player__video viewer"
           ref="video"
-          // autoPlay
+          autoPlay
           src="https://player.vimeo.com/external/194837908.sd.mp4?s=c350076905b78c67f74d7ee39fdb4fef01d12420&profile_id=164"
           onClick={this.togglePlay}
         />
@@ -49,7 +59,10 @@ class App extends Component {
         <div className="player__controls">
 
           <div className="progress">
-           <div className="progress__filled"></div>
+           <div
+             className="progress__filled"
+             style={{'flexBasis': this.state.progress}}
+           ></div>
           </div>
           
           <button 
