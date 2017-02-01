@@ -1,6 +1,6 @@
 ## Video Player with Custom Controls - React version
 
-### Live version: https:///custom-video-player-react.herokuapp.com/
+### Live version: https://custom-video-player-react.herokuapp.com/
 
 This project was bootstrapped with [Create React App](https://github.com/facebookincubator/create-react-app).
 
