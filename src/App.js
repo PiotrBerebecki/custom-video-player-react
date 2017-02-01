@@ -8,7 +8,10 @@ class App extends Component {
     this.handleProgress = this.handleProgress.bind(this);
     this.handleRangeUpdate = this.handleRangeUpdate.bind(this);
     this.scrub = this.scrub.bind(this);
-    this.toggleMouseState = this.toggleMouseState.bind(this);
+    this.startMouseDown = this.startMouseDown.bind(this);
+    this.endMouseDown = this.endMouseDown.bind(this);
+    this.skip = this.skip.bind(this);
+    
     this.state = {
       video: null,
       progress: '0%',
@@ -27,11 +30,8 @@ class App extends Component {
           this.forceUpdate();
         });
       });
-      
       this.state.video.addEventListener('timeupdate', this.handleProgress);
     });
-    
-    // window.addEventListener('mouseup', this.toggleMouseState);
   }
   
   togglePlay() {
@@ -49,7 +49,6 @@ class App extends Component {
   }
   
   handleRangeUpdate(e) {
-    console.log('range update');
     const { name, value } = e.target;
     this.setState({
       [name]: value,
@@ -60,22 +59,32 @@ class App extends Component {
   }
   
   scrub(e) {
-    
-    console.log('mouse move event only with mouse down');
-    // console.dir(this.state.video);
-    // const scrubTime = (e.nativeEvent.offsetX / 640) * this.state.video.duration;
-    // this.refs.video.currentTime = scrubTime;
-    // console.log('scrubTime', scrubTime);
+    const scrubTime = (e.nativeEvent.offsetX / this.refs.video.clientWidth) * this.refs.video.duration;
+    if (!isNaN(scrubTime)) {
+      this.refs.video.currentTime = scrubTime;
+    }
   }
   
-  toggleMouseState(e) {
+  startMouseDown(e) {
     this.setState({
-      isMouseDown: e.type === 'mousedown' || e.type !== 'mouseleave'
+      isMouseDown: true
     });
   }
   
+  endMouseDown(e) {
+    this.setState({
+      isMouseDown: false
+    });
+  }
+  
+  skip(e) {
+    const skipValue = e.target.attributes[0].value;
+    if (!isNaN(skipValue)) {
+      this.refs.video.currentTime += Number(skipValue);
+    }
+  }
+  
   render() {
-    // console.log('render', this.state.isMouseDown);
     const { video, progress, playbackRate, volume } = this.state;
     
     return (
@@ -85,7 +94,7 @@ class App extends Component {
         <video
           className="player__video viewer"
           ref="video"
-          // autoPlay
+          autoPlay
           src="https://player.vimeo.com/external/194837908.sd.mp4?s=c350076905b78c67f74d7ee39fdb4fef01d12420&profile_id=164"
           onClick={this.togglePlay}
         />
@@ -94,10 +103,11 @@ class App extends Component {
 
           <div 
             className="progress"
-            onMouseDown={this.toggleMouseState}
-            onMouseUp={this.toggleMouseState}
-            onMouseLeave={this.toggleMouseState}
+            onMouseDown={this.startMouseDown}
+            onMouseUp={this.endMouseDown}
+            onMouseLeave={this.endMouseDown}
             onMouseMove={(e) => this.state.isMouseDown && this.scrub(e)}
+            onClick={this.scrub}
           >
            <div
              className="progress__filled"
@@ -130,18 +140,19 @@ class App extends Component {
           <button 
             data-skip="-10" 
             className="player__button"
+            onClick={this.skip}
           >« 10s
           </button>
           
           <button 
             data-skip="25" 
             className="player__button"
+            onClick={this.skip}
           >25s »
           </button>
           
         </div>
 
-        
       </div>
       
     );
@@ -149,5 +160,3 @@ class App extends Component {
 }
 
 export default App;
-
-
